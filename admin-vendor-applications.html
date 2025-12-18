@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendor Applications - Admin | ADEEB GROUP</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="CSS/style.css">
+    <link rel="stylesheet" href="CSS/responsive.css">
+    <style>
+        /* Small admin-specific tweaks while relying on main site CSS */
+        .admin-hero {
+            padding: 120px 0 40px;
+            background: linear-gradient(135deg, var(--primary-dark, #1c797c) 0%, #1e3a5f 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .admin-container {
+            padding: 40px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .admin-controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+
+        .applications-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background: var(--white, #fff);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm, 0 4px 6px rgba(0,0,0,0.08));
+        }
+
+        .applications-table th, .applications-table td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            vertical-align: middle;
+        }
+
+        .applications-table th {
+            background-color: var(--primary-dark, #1c797c);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: capitalize;
+        }
+
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-approved { background: #d4edda; color: #155724; }
+        .status-rejected { background: #f8d7da; color: #721c24; }
+
+        .action-btn { margin-right: 8px; }
+
+        #loading { margin-top: 12px; color: var(--gray-medium, #648b8b); }
+
+        /* Responsive: convert rows into cards on small screens */
+        @media (max-width: 768px) {
+            .applications-table, .applications-table thead, .applications-table tbody, .applications-table th, .applications-table td, .applications-table tr {
+                display: block;
+            }
+
+            .applications-table thead tr { display: none; }
+
+            .applications-card {
+                border: 1px solid rgba(0,0,0,0.06);
+                border-radius: 8px;
+                padding: 12px;
+                margin-bottom: 12px;
+                background: var(--white, #fff);
+            }
+
+            .applications-card .row { display:flex; justify-content:space-between; margin-bottom:6px; }
+            .applications-card .row .label { font-weight:700; color:var(--gray-medium,#648b8b); }
+        }
+    </style>
+    </head>
+    <body>
+
+        <!-- Header (copied from main site for consistency) -->
+    <header class="header">
+        <div class="container">
+            <div class="nav-wrapper">
+                <div class="logo">
+                    <a href="index.html">
+                        <div class="logo-icon">
+                            <img src="images/48x48.svg" alt="ADEEB GROUP Logo" style="width: 40px; height: 40px; object-fit: contain;">
+                        </div>
+                        <span>ADEEB GROUP</span>
+                    </a>
+                </div>
+                <nav class="main-nav">
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li class="dropdown">
+                            <a href="#">Services <i class="fas fa-chevron-down"></i></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="pages/facility-management.html" class="fm-color">Facility Management</a></li>
+                                <li><a href="pages/it-services.html" class="it-color">IT Services</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="pages/portfolio.html">Portfolio</a></li>
+                        <li><a href="pages/media.html">Media</a></li>
+                        <li><a href="pages/careers.html">Careers</a></li>
+                        <li class="dropdown">
+                            <a href="pages/contact.html">Contact <i class="fas fa-chevron-down"></i></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="pages/contact.html">Contact Us</a></li>
+                                <li><a href="vendor-registration.html" class="vendor-color">Vendor Registration</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="admin-vendor-applications.html" class="active">Admin</a></li>
+                    </ul>
+                </nav>
+                <div class="nav-cta">
+                    <a href="pages/contact.html" class="btn btn-primary">Get Quote</a>
+                </div>
+                <div class="mobile-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="admin-hero">
+        <div class="container">
+            <h1>Vendor Applications - Admin</h1>
+            <p>Review vendor applications submitted through the site. (Local demo data / localStorage)</p>
+        </div>
+    </section>
+
+
+
+    <main class="admin-container">
+        <style>
+            .admin-grid { display:grid; grid-template-columns: 260px 1fr; gap:16px; align-items:start; }
+            .admin-sidebar { background:var(--white); border:1px solid rgba(0,0,0,0.04); padding:16px; border-radius:8px; }
+            .admin-sidebar ul { list-style:none; padding:0; margin:0; }
+            .admin-sidebar li { margin-bottom:8px; }
+            .admin-sidebar a { display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:6px; color:var(--gray-dark); }
+            .admin-sidebar a.active, .admin-sidebar a:hover { background:var(--gray-very-light); }
+            .admin-main { background:var(--white); padding:16px; border-radius:8px; min-height:520px; border:1px solid rgba(0,0,0,0.04); }
+            .admin-toolbar { display:flex; justify-content:space-between; gap:12px; align-items:center; margin-bottom:12px; }
+            .admin-tabs { display:flex; gap:8px; }
+            .admin-section { display:none; }
+            .admin-section.active { display:block; }
+            .preview-frame { width:100%; height:420px; border:1px solid rgba(0,0,0,0.06); border-radius:6px; }
+            .stat-cards { display:flex; gap:12px; margin-bottom:12px; }
+            .stat-card { flex:1; padding:12px; border-radius:8px; background:var(--gray-very-light); text-align:center; }
+        </style>
+
+        <div class="admin-grid">
+            <aside class="admin-sidebar">
+                <div style="font-weight:700;margin-bottom:12px">Admin</div>
+                <ul>
+                    <li><a href="#" onclick="switchTab('overview');return false;" id="nav_overview" class="active"><i class="fas fa-tachometer-alt"></i> Overview</a></li>
+                    <li><a href="#" onclick="switchTab('pages');return false;" id="nav_pages"><i class="fas fa-file-alt"></i> Pages</a></li>
+                    <li><a href="#" onclick="switchTab('applications');return false;" id="nav_applications"><i class="fas fa-clipboard-list"></i> Applications</a></li>
+                    <li><a href="#" onclick="switchTab('users');return false;" id="nav_users"><i class="fas fa-users"></i> Users</a></li>
+                    <li><a href="#" onclick="switchTab('settings');return false;" id="nav_settings"><i class="fas fa-cog"></i> Settings</a></li>
+                    <li style="margin-top:12px"><a href="#" onclick="logoutAdmin();return false;"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                </ul>
+                <hr style="margin:12px 0">
+                <div style="font-size:0.9rem;color:var(--gray-medium)">Quick Actions</div>
+                <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+                    <button class="btn btn-primary" onclick="openEditor('index')"><i class="fas fa-edit"></i> Edit Home</button>
+                    <button class="btn btn-primary" onclick="openEditor('contact')"><i class="fas fa-edit"></i> Edit Contact</button>
+                    <button class="btn btn-primary" onclick="openEditor('who')"><i class="fas fa-edit"></i> Edit Who We Are</button>
+                </div>
+            </aside>
+
+            <section class="admin-main">
+                <div class="admin-toolbar">
+                    <div class="admin-title">
+                        <h2 style="margin:0">Admin Dashboard</h2>
+                        <div style="color:var(--gray-medium);font-size:0.9rem">Manage site content, applications and settings (demo).</div>
+                    </div>
+                    <div class="admin-tools">
+                        <div class="admin-tabs">
+                            <button class="btn btn-secondary" onclick="refreshApplications()"><i class="fas fa-sync-alt"></i></button>
+                            <button class="btn btn-secondary" onclick="exportToCSV()"><i class="fas fa-file-csv"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section_overview" class="admin-section active">
+                    <div class="stat-cards">
+                        <div class="stat-card"><strong id="stat_total">0</strong><div>Total Applications</div></div>
+                        <div class="stat-card"><strong id="stat_pending">0</strong><div>Pending</div></div>
+                        <div class="stat-card"><strong id="stat_approved">0</strong><div>Approved</div></div>
+                        <div class="stat-card"><strong id="stat_rejected">0</strong><div>Rejected</div></div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 420px;gap:12px;align-items:start">
+                        <div>
+                            <h3>Recent Applications</h3>
+                            <div id="recentList"></div>
+                        </div>
+                        <div>
+                            <h3>Preview</h3>
+                            <iframe id="previewFrame" class="preview-frame" src="pages/contact.html"></iframe>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section_pages" class="admin-section">
+                    <h3>Pages</h3>
+                    <div style="display:flex;gap:12px;align-items:flex-start">
+                        <div style="flex:1">
+                            <ul id="pagesList" style="list-style:none;padding:0;margin:0;display:grid;gap:8px"></ul>
+                        </div>
+                        <div style="width:420px">
+                            <h4>Preview</h4>
+                            <iframe id="pagePreview" class="preview-frame" src="/Index.html"></iframe>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section_applications" class="admin-section">
+                    <h3>Applications</h3>
+                    <div id="applicationsArea">
+                        <div id="applicationsWrapper">
+                            <table class="applications-table" id="applicationsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Company Name</th>
+                                        <th>Contact Person</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="applicationsBody">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="loading">Loading applications...</div>
+                    </div>
+                </div>
+
+                <div id="section_users" class="admin-section">
+                    <h3>Users (Demo)</h3>
+                    <p>Manage admin users (local demo — no real authentication changes).</p>
+                    <div style="display:flex;gap:8px;align-items:center">
+                        <input id="newUserEmail" class="form-control" placeholder="newuser@adeeb.com">
+                        <button class="btn btn-primary" onclick="addDemoUser()">Add User</button>
+                    </div>
+                    <ul id="usersList" style="margin-top:12px;"></ul>
+                </div>
+
+                <div id="section_settings" class="admin-section">
+                    <h3>Site Settings (Demo)</h3>
+                    <label>Primary Color<input id="setting_primary_color" type="color" class="form-control" value="#1c797c"></label>
+                    <label>Footer Blurb<textarea id="setting_footer_blurb" class="form-control" rows="3"></textarea></label>
+                    <div style="margin-top:10px"><button class="btn btn-primary" onclick="saveSiteSettings()">Save Settings</button></div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer (copied from main site) -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="footer-logo">
+                        <div class="logo-icon">
+                            <img src="images/48x48.svg" alt="ADEEB GROUP Logo" style="width: 40px; height: 40px; object-fit: contain;">
+                        </div>
+                        <span>ADEEB GROUP</span>
+                    </div>
+                    <p>Your trusted partner for integrated Facility Management and IT Services solutions.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Services</h4>
+                    <ul>
+                        <li><a href="pages/facility-management.html" class="fm-color">Facility Management</a></li>
+                        <li><a href="pages/it-services.html" class="it-color">IT Services</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="pages/portfolio.html">Portfolio</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Opening Hours</h4>
+                    <p>Monday to Friday (8:00 AM to 5:30 PM),<br> Saturday (8:00 to 2:00 PM), Sunday Closed</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 ADEEB GROUP. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const API_BASE = 'http://localhost:3000';
+
+        // Demo seed data for local/demo mode — replaces missing backend
+        const demoApplications = [
+            { id: 1, date: '2024-11-20', company: 'Alpha Facilities', contact: 'Sara Khan', email: 'sara@alpha.com', phone: '+971501234567', status: 'pending' },
+            { id: 2, date: '2024-12-02', company: 'Beta IT Solutions', contact: 'Omar Rahman', email: 'omar@beta-it.com', phone: '+971509876543', status: 'approved' },
+            { id: 3, date: '2025-01-05', company: 'Gamma Cleaners', contact: 'Nadia Ali', email: 'nadia@gamma.com', phone: '+971507112233', status: 'rejected' }
+        ];
+
+        // Initialize applications from localStorage or demo seed
+        let currentApplications = JSON.parse(localStorage.getItem('vendorApplications')) || demoApplications.slice();
+        if (!localStorage.getItem('vendorApplications')) {
+            localStorage.setItem('vendorApplications', JSON.stringify(currentApplications));
+        }
+
+        function formatRow(app) {
+            return `
+                <tr>
+                    <td>${app.date}</td>
+                    <td>${escapeHtml(app.company)}</td>
+                    <td>${escapeHtml(app.contact)}</td>
+                    <td><a href="mailto:${escapeHtml(app.email)}">${escapeHtml(app.email)}</a></td>
+                    <td><a href="tel:${escapeHtml(app.phone)}">${escapeHtml(app.phone)}</a></td>
+                    <td><span class="status-badge status-${app.status}">${app.status}</span></td>
+                    <td>
+                        <button class="btn btn-secondary action-btn" onclick="viewApplication(${app.id})" title="View"><i class="fas fa-eye"></i></button>
+                        <button class="btn btn-fm action-btn" onclick="updateStatus(${app.id}, 'approved')" title="Approve"><i class="fas fa-check-circle"></i></button>
+                        <button class="btn btn-it action-btn" onclick="confirmReject(${app.id})" title="Reject"><i class="fas fa-times-circle"></i></button>
+                    </td>
+                </tr>
+            `;
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>\"']/g, function (s) {
+                return ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;','\'':'&#39;'})[s];
+            });
+        }
+
+        function loadApplications() {
+            const tbody = document.getElementById('applicationsBody');
+            const loading = document.getElementById('loading');
+            const wrapper = document.getElementById('applicationsWrapper');
+
+            const applications = currentApplications;
+
+            // render table rows
+            tbody.innerHTML = '';
+            applications.forEach(app => {
+                tbody.insertAdjacentHTML('beforeend', formatRow(app));
+            });
+
+            // For small screens, also render cards if table is stacked via CSS
+            if (window.innerWidth <= 768) {
+                // convert rows into card layout by extracting data
+                const rows = applications.map(app => {
+                    return `
+                        <div class="applications-card">
+                            <div class="row"><div class="label">Company</div><div>${escapeHtml(app.company)}</div></div>
+                            <div class="row"><div class="label">Contact</div><div>${escapeHtml(app.contact)}</div></div>
+                            <div class="row"><div class="label">Email</div><div><a href=\"mailto:${escapeHtml(app.email)}\">${escapeHtml(app.email)}</a></div></div>
+                            <div class="row"><div class="label">Phone</div><div><a href=\"tel:${escapeHtml(app.phone)}\">${escapeHtml(app.phone)}</a></div></div>
+                            <div class="row"><div class="label">Status</div><div><span class="status-badge status-${app.status}">${app.status}</span></div></div>
+                            <div class="row"><div class="label">Actions</div><div>
+                                <button class=\"btn btn-secondary action-btn\" onclick=\"viewApplication(${app.id})\"><i class=\"fas fa-eye\"></i></button>
+                                <button class=\"btn btn-fm action-btn\" onclick=\"updateStatus(${app.id}, 'approved')\"><i class=\"fas fa-check-circle\"></i></button>
+                                <button class=\"btn btn-it action-btn\" onclick=\"confirmReject(${app.id})\"><i class=\"fas fa-times-circle\"></i></button>
+                            </div></div>
+                        </div>
+                    `;
+                }).join('');
+
+                // replace table with card list
+                wrapper.innerHTML = rows;
+            } else {
+                wrapper.innerHTML = '';
+                wrapper.appendChild(document.getElementById('applicationsTable'));
+            }
+
+            loading.style.display = 'none';
+        }
+
+        function viewApplication(id) {
+            // Open application detail modal (richer UI)
+            openApplicationModal(id);
+        }
+
+        function updateStatus(id, status) {
+            const index = currentApplications.findIndex(a => a.id === id);
+            if (index > -1) {
+                currentApplications[index].status = status;
+                localStorage.setItem('vendorApplications', JSON.stringify(currentApplications));
+                loadApplications();
+            }
+        }
+
+        function confirmReject(id) {
+            if (confirm('Are you sure you want to reject this application?')) {
+                updateStatus(id, 'rejected');
+            }
+        }
+
+        function refreshApplications() {
+            document.getElementById('loading').style.display = 'block';
+            setTimeout(loadApplications, 700);
+        }
+
+        function exportToCSV() {
+            const applications = JSON.parse(localStorage.getItem('vendorApplications')) || currentApplications;
+            let csv = 'Date,Company,Contact,Email,Phone,Status\n';
+            applications.forEach(app => {
+                // Escape commas by wrapping values in quotes
+                const row = [`${app.date}`,
+                    `"${app.company.replace(/"/g,'""')}"`,
+                    `"${app.contact.replace(/"/g,'""')}"`,
+                    `"${app.email.replace(/"/g,'""')}"`,
+                    `"${app.phone.replace(/"/g,'""')}"`,
+                    `${app.status}`].join(',');
+                csv += row + '\n';
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'vendor-applications.csv';
+            a.click();
+        }
+
+        /* ------------------ Site-wide Content Editor (dynamic) ------------------ */
+        const pageSchemas = {
+            index: {
+                label: 'Home',
+                fields: [
+                    { key: 'hero_title', label: 'Hero Title', type: 'text' },
+                    { key: 'hero_subtitle', label: 'Hero Subtitle', type: 'textarea' },
+                    { key: 'nav_cta_text', label: 'Header CTA Text', type: 'text' },
+                    { key: 'nav_cta_href', label: 'Header CTA Href', type: 'text' },
+                    { key: 'footer_blurb', label: 'Footer Blurb', type: 'textarea' }
+                ]
+            },
+            contact: {
+                label: 'Contact',
+                fields: [
+                    { key: 'header_title', label: 'Header Title', type: 'text' },
+                    { key: 'header_subtitle', label: 'Header Subtitle', type: 'textarea' },
+                    { key: 'contact_info_title', label: 'Contact Info Title', type: 'text' },
+                    { key: 'contact_info_text', label: 'Contact Info Text', type: 'textarea' },
+                    { key: 'contact_form_title', label: 'Contact Form Title', type: 'text' }
+                ]
+            },
+            who: {
+                label: 'Who We Are',
+                fields: [
+                    { key: 'header_title', label: 'Header Title', type: 'text' },
+                    { key: 'header_subtitle', label: 'Header Subtitle', type: 'textarea' },
+                    { key: 'footer_blurb', label: 'Footer Blurb', type: 'textarea' }
+                ]
+            },
+            footer: {
+                label: 'Footer',
+                fields: [
+                    { key: 'footer_blurb', label: 'Footer Blurb', type: 'textarea' }
+                ]
+            }
+        };
+
+        function ensureEditorModal(){
+            if (document.getElementById('editorModal')) return;
+            const modal = document.createElement('div');
+            modal.id = 'editorModal';
+            modal.style.display = 'none';
+            modal.style.position = 'fixed';
+            modal.style.left = '0';
+            modal.style.top = '0';
+            modal.style.right = '0';
+            modal.style.bottom = '0';
+            modal.style.background = 'rgba(0,0,0,0.5)';
+            modal.style.zIndex = '9999';
+            modal.innerHTML = `
+                <div style="max-width:920px;margin:40px auto;background:#fff;padding:20px;border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                        <h3 id="editorTitle" style="margin:0">Edit Page Content</h3>
+                        <button class="btn btn-secondary" onclick="closeEditor()">Close</button>
+                    </div>
+                    <p style="margin-bottom:12px;color:var(--gray-medium);">Choose a page and edit its fields. Changes are saved locally (demo).</p>
+                    <div style="display:flex;gap:10px;margin-bottom:12px">
+                        <label style="flex:0 0 220px">Page
+                            <select id="editorPageSelect" class="form-control" style="width:100%"></select>
+                        </label>
+                        <div style="flex:1;display:flex;align-items:center;gap:8px">
+                            <button class="btn btn-primary" onclick="renderEditorFields()">Load Fields</button>
+                            <button class="btn btn-secondary" onclick="resetPageEdits()">Reset To Defaults</button>
+                        </div>
+                    </div>
+                    <div id="editorFields" style="display:grid;grid-template-columns:1fr;gap:10px;max-height:420px;overflow:auto;padding-right:6px"></div>
+                    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+                        <button class="btn btn-secondary" onclick="closeEditor()">Cancel</button>
+                        <button class="btn btn-primary" onclick="saveEditorPage()">Save Changes</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            // populate page select
+            const sel = modal.querySelector('#editorPageSelect');
+            for (const k of Object.keys(pageSchemas)){
+                const opt = document.createElement('option'); opt.value = k; opt.textContent = pageSchemas[k].label; sel.appendChild(opt);
+            }
+        }
+
+        function openEditor(pageKey){
+            ensureEditorModal();
+            const sel = document.getElementById('editorPageSelect');
+            if (pageKey) sel.value = pageKey;
+            document.getElementById('editorModal').style.display = 'block';
+            renderEditorFields();
+        }
+
+        function renderEditorFields(){
+            const sel = document.getElementById('editorPageSelect');
+            const page = sel.value;
+            const container = document.getElementById('editorFields');
+            container.innerHTML = '';
+            const schema = pageSchemas[page];
+            const edits = JSON.parse(localStorage.getItem('siteEdits') || '{}');
+            const pageEdits = edits[page] || {};
+            const getTextOrEmpty = id=>{ const el = document.getElementById(id); return el ? el.textContent.trim() : '' };
+            schema.fields.forEach(f=>{
+                const key = f.key;
+                const value = pageEdits[key] || getTextOrEmpty((page==='index' && key==='hero_title') ? null : (page==='contact' && key==='header_title') ? 'site_header_title' : key) || '';
+                const row = document.createElement('div');
+                row.innerHTML = `<label style="display:block;font-weight:600;margin-bottom:6px">${f.label}</label>`;
+                let input;
+                if (f.type === 'textarea'){
+                    input = document.createElement('textarea'); input.rows = 3;
+                } else {
+                    input = document.createElement('input'); input.type = 'text';
+                }
+                input.className = 'form-control';
+                input.value = value;
+                input.dataset.fieldKey = key;
+                row.appendChild(input);
+                container.appendChild(row);
+            });
+        }
+
+        function closeEditor(){ document.getElementById('editorModal').style.display = 'none'; }
+
+        function saveEditorPage(){
+            const sel = document.getElementById('editorPageSelect');
+            const page = sel.value;
+            const container = document.getElementById('editorFields');
+            const inputs = container.querySelectorAll('[data-field-key]');
+            const edits = JSON.parse(localStorage.getItem('siteEdits') || '{}');
+            edits[page] = edits[page] || {};
+            inputs.forEach(inp=>{
+                const k = inp.dataset.fieldKey; edits[page][k] = inp.value.trim();
+            });
+            localStorage.setItem('siteEdits', JSON.stringify(edits));
+
+            // Apply immediately to DOM if elements present on this page
+            try {
+                const pageEdits = edits[page];
+                if (page === 'index'){
+                    if (pageEdits.hero_title) document.querySelector('.hero-content h1') && (document.querySelector('.hero-content h1').textContent = pageEdits.hero_title);
+                    if (pageEdits.hero_subtitle) document.querySelector('.hero-content p') && (document.querySelector('.hero-content p').textContent = pageEdits.hero_subtitle);
+                    if (pageEdits.nav_cta_text) document.querySelector('.nav-cta a') && (document.querySelector('.nav-cta a').textContent = pageEdits.nav_cta_text);
+                    if (pageEdits.nav_cta_href) document.querySelector('.nav-cta a') && (document.querySelector('.nav-cta a').setAttribute('href', pageEdits.nav_cta_href));
+                    if (pageEdits.footer_blurb) document.querySelector('.footer .footer-col p') && (document.querySelector('.footer .footer-col p').textContent = pageEdits.footer_blurb);
+                } else if (page === 'contact'){
+                    if (pageEdits.header_title) document.getElementById('site_header_title') && (document.getElementById('site_header_title').textContent = pageEdits.header_title);
+                    if (pageEdits.header_subtitle) document.getElementById('site_header_subtitle') && (document.getElementById('site_header_subtitle').textContent = pageEdits.header_subtitle);
+                    if (pageEdits.contact_info_title) document.getElementById('contact_info_title') && (document.getElementById('contact_info_title').textContent = pageEdits.contact_info_title);
+                    if (pageEdits.contact_info_text) document.getElementById('contact_info_text') && (document.getElementById('contact_info_text').textContent = pageEdits.contact_info_text);
+                    if (pageEdits.contact_form_title) document.getElementById('contact_form_title') && (document.getElementById('contact_form_title').textContent = pageEdits.contact_form_title);
+                } else if (page === 'who'){
+                    if (pageEdits.header_title) document.querySelector('.page-header .header-content h1') && (document.querySelector('.page-header .header-content h1').textContent = pageEdits.header_title);
+                    if (pageEdits.header_subtitle) document.querySelector('.page-header .header-content p') && (document.querySelector('.page-header .header-content p').textContent = pageEdits.header_subtitle);
+                    if (pageEdits.footer_blurb) document.querySelector('.footer .footer-col p') && (document.querySelector('.footer .footer-col p').textContent = pageEdits.footer_blurb);
+                } else if (page === 'footer'){
+                    if (pageEdits.footer_blurb) document.querySelector('.footer .footer-col p') && (document.querySelector('.footer .footer-col p').textContent = pageEdits.footer_blurb);
+                }
+            } catch (e) { /* ignore */ }
+
+            closeEditor();
+            alert('Saved changes locally. Open or refresh public pages to see updates.');
+        }
+
+        function resetPageEdits(){
+            const sel = document.getElementById('editorPageSelect');
+            const page = sel.value;
+            if (!confirm('Reset edits for this page to defaults? This will remove saved edits.')) return;
+            const edits = JSON.parse(localStorage.getItem('siteEdits') || '{}');
+            delete edits[page];
+            localStorage.setItem('siteEdits', JSON.stringify(edits));
+            renderEditorFields();
+            alert('Page edits cleared. Refresh public pages to see defaults.');
+        }
+
+        /* ------------------ Admin UI helpers ------------------ */
+        function switchTab(tabKey){
+            // hide all sections
+            document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));
+            document.querySelectorAll('.admin-sidebar a').forEach(a=>a.classList.remove('active'));
+            // show selected
+            const section = document.getElementById('section_' + tabKey);
+            if (section) section.classList.add('active');
+            const nav = document.getElementById('nav_' + tabKey);
+            if (nav) nav.classList.add('active');
+
+            // call renderers per tab
+            if (tabKey === 'overview') renderOverview();
+            if (tabKey === 'pages') renderPagesList();
+            if (tabKey === 'applications') loadApplications();
+            if (tabKey === 'users') renderUsersList();
+        }
+
+        function renderPagesList(){
+            const pages = [{key:'index',label:'Home','src':'/Index.html'},{key:'contact',label:'Contact','src':'/pages/contact.html'},{key:'who',label:'Who We Are','src':'/pages/who-we-are.html'},{key:'footer',label:'Footer','src':'/pages/contact.html'}];
+            const list = document.getElementById('pagesList'); list.innerHTML='';
+            pages.forEach(p=>{
+                const li = document.createElement('li');
+                li.style.display='flex'; li.style.justifyContent='space-between'; li.style.alignItems='center';
+                li.innerHTML = `<div><strong>${p.label}</strong><div style="color:var(--gray-medium);font-size:0.9rem">${p.key}</div></div>`;
+                const actions = document.createElement('div');
+                actions.innerHTML = `<button class="btn btn-primary" onclick="openEditor('${p.key}')"><i class='fas fa-edit'></i></button> <button class="btn btn-secondary" onclick="previewPage('${p.src}')"><i class='fas fa-eye'></i></button>`;
+                li.appendChild(actions);
+                list.appendChild(li);
+            });
+        }
+
+        function previewPage(url){
+            // set preview iframe src
+            const frame = document.getElementById('pagePreview') || document.getElementById('previewFrame');
+            if (frame) frame.src = url;
+        }
+
+        function renderOverview(){
+            const apps = JSON.parse(localStorage.getItem('vendorApplications') || '[]');
+            const total = apps.length; const pending = apps.filter(a=>a.status==='pending').length; const approved = apps.filter(a=>a.status==='approved').length; const rejected = apps.filter(a=>a.status==='rejected').length;
+            document.getElementById('stat_total').textContent = total;
+            document.getElementById('stat_pending').textContent = pending;
+            document.getElementById('stat_approved').textContent = approved;
+            document.getElementById('stat_rejected').textContent = rejected;
+            const recent = document.getElementById('recentList'); recent.innerHTML='';
+            apps.slice(0,5).forEach(a=>{ const div=document.createElement('div'); div.style.padding='8px'; div.style.borderBottom='1px solid rgba(0,0,0,0.04)'; div.innerHTML = `<strong>${a.company}</strong><div style="color:var(--gray-medium)">${a.contact} • ${a.status}</div><div style="margin-top:6px"><button class='btn btn-secondary' onclick='viewApplication(${a.id})'>View</button></div>`; recent.appendChild(div); });
+        }
+
+        // Users (demo)
+        function loadUsers(){
+            return JSON.parse(localStorage.getItem('adminUsers') || '[]');
+        }
+        function saveUsers(u){ localStorage.setItem('adminUsers', JSON.stringify(u)); }
+        function addDemoUser(){ const email=document.getElementById('newUserEmail').value.trim(); if(!email) return alert('Enter email'); const users=loadUsers(); users.push({email, role:'editor', added:new Date().toISOString()}); saveUsers(users); renderUsersList(); }
+        function renderUsersList(){ const list=document.getElementById('usersList'); list.innerHTML=''; const users=loadUsers(); if(users.length===0) list.textContent='No users yet'; users.forEach(u=>{ const li=document.createElement('li'); li.style.padding='8px'; li.style.borderBottom='1px solid rgba(0,0,0,0.04)'; li.innerHTML=`<strong>${u.email}</strong><div style="color:var(--gray-medium);font-size:0.9rem">${u.role}</div>`; list.appendChild(li); }); }
+
+        // Settings
+        function loadSiteSettings(){ return JSON.parse(localStorage.getItem('siteSettings') || '{}'); }
+        function saveSiteSettings(){ const c=document.getElementById('setting_primary_color').value; const b=document.getElementById('setting_footer_blurb').value; const s={primary_color:c, footer_blurb:b}; localStorage.setItem('siteSettings', JSON.stringify(s)); // apply footer blurb
+            try{ document.querySelector('.footer .footer-col p') && (document.querySelector('.footer .footer-col p').textContent = b); }catch(e){}
+            alert('Settings saved locally (demo)'); }
+
+        // Application detail modal
+        function openApplicationModal(appId){
+            let modal = document.getElementById('appModal');
+            if (!modal){
+                modal = document.createElement('div'); modal.id='appModal'; modal.style.position='fixed'; modal.style.left=0; modal.style.top=0; modal.style.right=0; modal.style.bottom=0; modal.style.background='rgba(0,0,0,0.5)'; modal.style.zIndex=9999;
+                modal.innerHTML = `<div style="max-width:720px;margin:60px auto;background:#fff;padding:18px;border-radius:8px;"><div id='appModalBody'></div><div style='text-align:right;margin-top:12px'><button class='btn btn-secondary' onclick="closeAppModal()">Close</button></div></div>`;
+                document.body.appendChild(modal);
+            }
+            const app = (JSON.parse(localStorage.getItem('vendorApplications')||'[]')).find(a=>a.id===appId);
+            const body = document.getElementById('appModalBody');
+            if (!app) { body.innerHTML = '<p>Application not found</p>'; modal.style.display='block'; return; }
+            body.innerHTML = `<h3>${escapeHtml(app.company)}</h3><p><strong>Contact:</strong> ${escapeHtml(app.contact)}<br><strong>Email:</strong> ${escapeHtml(app.email)}<br><strong>Phone:</strong> ${escapeHtml(app.phone)}<br><strong>Status:</strong> ${escapeHtml(app.status)}</p><label>Admin Notes<textarea id='appAdminNotes' class='form-control' rows=4>${escapeHtml(app.notes||'')}</textarea></label><div style='margin-top:10px'><button class='btn btn-fm' onclick='saveAppNotes(${app.id})'>Save Notes</button> <button class='btn btn-it' onclick="updateStatus(${app.id}, 'approved')">Approve</button> <button class='btn btn-secondary' onclick="updateStatus(${app.id}, 'rejected')">Reject</button></div>`;
+            modal.style.display='block';
+        }
+        function closeAppModal(){ const m=document.getElementById('appModal'); if(m) m.style.display='none'; }
+        function saveAppNotes(id){ const notes=document.getElementById('appAdminNotes').value; const apps=JSON.parse(localStorage.getItem('vendorApplications')||'[]'); const i=apps.findIndex(a=>a.id===id); if(i>-1){ apps[i].notes=notes; localStorage.setItem('vendorApplications', JSON.stringify(apps)); alert('Notes saved'); } }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in via admin-login.html
+            const adminLogin = localStorage.getItem('adminLogin');
+            if (!adminLogin) {
+                // Redirect to login page if not authenticated
+                window.location.href = 'admin-login.html';
+                return;
+            }
+
+            // Load applications on page load
+            loadApplications();
+
+            // Initialize admin UI
+            switchTab('overview');
+            renderUsersList();
+
+            // Load any saved settings into controls
+            try{
+                const s = loadSiteSettings();
+                if (s.primary_color) document.getElementById('setting_primary_color').value = s.primary_color;
+                if (s.footer_blurb) document.getElementById('setting_footer_blurb').value = s.footer_blurb;
+            }catch(e){}
+
+            // Re-render on resize for responsive card/table switch
+            let resizeTimer;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(loadApplications, 250);
+            });
+        });
+
+        function logoutAdmin() {
+            // Clear admin login session
+            localStorage.removeItem('adminLogin');
+            // Redirect to login page
+            window.location.href = 'admin-login.html';
+        }
+    </script>
+</body>
+</html>
